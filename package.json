@@ -1,0 +1,34 @@
+{
+    "name": "bruiser",
+    "homepage": "https://github.com/khrome/bruiser",
+    "version": "0.0.1-alpha",
+    "main": "bruiser.js",
+    "description": "A global browser for node.js that fools isolated js/jquery scripts into thinking they're running in the browser",
+    "keywords": [
+        "browser",
+        "testing"
+    ],
+    "author": "Abbey Hawk Sparrow <@khrome> (http://patternweaver.com)",
+    "contributors": [],
+    "bugs": {
+        "url": "https://github.com/khrome/bruiser/issues"
+    },
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:khrome/bruiser.git"
+    },
+    "dependencies": {
+        "node-proxy":"*",
+        "cheerio":"*"
+    },
+    "devDependencies": {
+        "mocha": "*",
+        "should": "*"
+    },
+    "optionalDependencies": {
+    },
+    "engines": {
+        "node": "*"
+    }
+}

@@ -39,8 +39,23 @@ global.window = function(){};
 SetForwardingHandler.wrap(global.window);
 
 var cheerio = require('cheerio');
-global.$ = function(el){
-	var el = cheerio(el);
+var anchor = {}; 
+anchor.context = cheerio;
+var elementIndex = {};
+bruiser.load = function(html){
+	anchor.context = cheerio.load(html);
+}
+var monitors = {};
+global.$ = function(elSelector){
+	var el;
+	if(typeof elSelector == 'string'){
+		if(elementIndex[elSelector]) return elementIndex[elSelector];
+		else el = anchor.context(elSelector);
+	}else{
+		//if(elSelector.length !== 0 && !elSelector.length) el = elSelector;
+		//else 
+		el = cheerio(elSelector);
+	}
 	el.ready = function(fn){
 		setTimeout(function(){
 			fn();
@@ -60,12 +75,23 @@ global.$ = function(el){
 		monitor : function(){}
 	};
 	el.monitor = function(fn){
+		monitors[elSelector] = fn
 		a.monitor = fn;
-	};
+		Array.prototype.forEach.apply(el, [function(child, index){
+			child.monitor = fn;
+		}]);
+	}; 
 	el.html = function(){
-		a.monitor.apply(el, arguments);
-		a.html.apply(el, arguments);
+		if(arguments.length){
+			if(monitors[elSelector]) monitors[elSelector].apply(el, arguments);
+			else Array.prototype.forEach.apply(el, [function(child, index){
+				if(child.monitor) child.monitor(child);
+			}]);
+		}
+		var res =  a.html.apply(el, arguments);
+		return res;
 	}
+	//elementIndex[elSelector] = el;
 	return el;
 }
 
@@ -75,6 +101,17 @@ global.$.proxy = function(fn, context){
 	}
 }
 
-global.document = {};
+global.WebSocket = function(){
+	this.onopen();
+};
+global.WebSocket.onmessage = function(){};
+global.WebSocket.onopen = function(){};
+global.WebSocket.onclose = function(){};
+global.WebSocket.send = function(){};
+global.WebSocket.message = function(event, options){
+	this.onmessage(event, options)
+};
+
+global.document = $('html');
 
 module.exports = bruiser;

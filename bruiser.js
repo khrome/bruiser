@@ -3,6 +3,8 @@ A global browser for node... also an abomination (use only for testing)
 */
 var bruiser = {};
 var Proxy = require('node-proxy');
+var fs = require('fs');
+var Emitter = require('events').EventEmitter;
 SetForwardingHandler = function(obj) {
 	this.target = obj;
 }
@@ -12,6 +14,7 @@ SetForwardingHandler.prototype = {
 		return global[name];
 	},
 	set: function(rcvr, name, val){
+	    console.log('SET', name);
 		global[name] = val;
 		return true;
 	},
@@ -44,6 +47,17 @@ anchor.context = cheerio;
 var elementIndex = {};
 bruiser.load = function(html){
 	anchor.context = cheerio.load(html);
+	global.document = anchor.context;
+	global.document.body = anchor.context('body');
+	return anchor.context;
+}
+bruiser.inline = function(module, callback){
+	fs.readFile(module, function(err, body){
+        if(err) callback(err);
+        //else vm.runInThisContext(body);
+        else eval(body+'');
+        if(callback) callback(null);
+    });
 }
 var monitors = {};
 global.$ = function(elSelector){
@@ -62,14 +76,43 @@ global.$ = function(elSelector){
 		}, 0);
 	}
 	el.on = function(event, callback){
-		
+		el.each(function(index, ob){
+		    if(!ob.events) ob.events = new Emitter();
+		    ob.events.on(event, callback);
+		});
+	}
+	el.once = function(event, callback){
+		el.each(function(index, ob){
+		    if(!ob.events) ob.events = new Emitter();
+		    ob.events.once(event, callback);
+		});
+	}
+	el.emit = function(event, callback){
+		el.each(function(index, ob){
+		    if(!ob.events) ob.events = new Emitter();
+		    ob.events.emit(event, callback);
+		});
+	}
+	el.fireEvent = el.emit;
+	el.click = function(e){ 
+	    e = e ||{ target : el };
+	    if(!el.length) return;
+	    el.fireEvent('click', e);
+	    $(el[0].parent).click(e);
 	}
 	el.off = function(event, callback){
-		
+		el.each(function(index, ob){
+		    if(!ob.events) ob.events = new Emitter();
+		    ob.events.off(event, callback);
+		});
 	}
+	el.animate = function(){
+	}
+	el.hide = function(event, callback){ };
+	el.show = function(event, callback){ };
 	el.resize = function(event, callback){
 		
-	}
+	};
 	var a = {
 		html : el.html,
 		monitor : function(){}
@@ -112,6 +155,6 @@ global.WebSocket.message = function(event, options){
 	this.onmessage(event, options)
 };
 
-global.document = $('html');
+global.document = global.$('html');
 
 module.exports = bruiser;

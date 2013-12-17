@@ -1,7 +1,7 @@
 {
     "name": "bruiser",
     "homepage": "https://github.com/khrome/bruiser",
-    "version": "0.0.1-alpha",
+    "version": "0.0.2-alpha",
     "main": "bruiser.js",
     "description": "A global browser for node.js that fools isolated js/jquery scripts into thinking they're running in the browser",
     "keywords": [

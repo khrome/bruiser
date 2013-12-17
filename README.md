@@ -4,7 +4,7 @@ A global browser for node.js that fools isolated js/jquery scripts into thinking
 
 Usage
 -----
-Nothing yet
+Seriously, Nothing yet
 
 Enjoy,
 

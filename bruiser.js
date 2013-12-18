@@ -75,6 +75,34 @@ global.$ = function(elSelector){
 			fn();
 		}, 0);
 	}
+	el.offset = function(){return {left:0, right:0, top:0, bottom:0}};
+	el.outerHeight = el.innerHeight = el.height = function(event, callback){
+		return el.css('height');
+	}
+	el.forEach = function(callback){
+		el.each(function(index, item){
+		    callback(item, index, el);
+		})
+	}
+	el.map = function(callback){
+	    var results = [];
+		el.each(function(index, item){
+		    results[index] = callback(item, index, el);
+		});
+		return results;
+	}
+	el.filter = function(callback){
+	    var results = [];
+		el.each(function(index, item){
+		    if(callback(item, index, el)){
+		        results.push(item);
+		    }
+		});
+		return results;
+	}
+	el.outerWidth = el.innerWidth = el.width = function(event, callback){
+		return el.css('width');
+	}
 	el.on = function(event, callback){
 		el.each(function(index, ob){
 		    if(!ob.events) ob.events = new Emitter();
@@ -132,17 +160,27 @@ global.$ = function(elSelector){
 			}]);
 		}
 		var res =  a.html.apply(el, arguments);
+		var addedImages = $('img', el);
+		addedImages.forEach(function(image){
+		    (function(){
+		        eval($(image).attr('onload'));
+		    }).apply(image);
+		})
 		return res;
 	}
 	//elementIndex[elSelector] = el;
 	return el;
 }
+global.$.extend = require('node.extend');
 
 global.$.proxy = function(fn, context){
 	return function(){
 		return fn.apply(context, arguments);
 	}
 }
+
+global.clearTimeout = clearTimeout;
+global.setTimeout = setTimeout;
 
 global.WebSocket = function(){
 	this.onopen();
